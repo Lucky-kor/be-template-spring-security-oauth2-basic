@@ -10,7 +10,15 @@ public enum ExceptionCode {
     ORDER_NOT_FOUND(404, "Order not found"),
     CANNOT_CHANGE_ORDER(403, "Order can not change"),
     NOT_IMPLEMENTATION(501, "Not Implementation"),
-    INVALID_MEMBER_STATUS(400, "Invalid member status");
+    INVALID_MEMBER_STATUS(400, "Invalid member status"),
+    QNA_NOT_FOUND(404, "Qna not found"),
+    REPLY_NOT_FOUND(404, "Reply not found"),
+    ANSWERED_QNA(403, "Answed Question"),
+    LIKED_QNA(403, "Liked Question"),
+    LIKED_NOT_FOUND(403, "Liked Not Found"),
+    QNA_DELETED(403, "Answed Deleted"),
+    ;
+
 
     @Getter
     private int status;
