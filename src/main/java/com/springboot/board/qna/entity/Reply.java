@@ -45,4 +45,8 @@ public class Reply {
     public Reply(String body) {
         this.body = body;
     }
+
+    public Reply(long id) {
+        this.id = id;
+    }
 }

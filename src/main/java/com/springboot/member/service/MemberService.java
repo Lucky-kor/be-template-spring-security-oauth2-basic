@@ -106,6 +106,12 @@ public class MemberService {
         return memberRepository.findByEmail(email).orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
+    // 같은 유저인지
+    public void checkSameMember(Object email, long memberId){
+        if (email != null && findVerifiedMember(email.toString()).getMemberId() != memberId)
+            throw  new BusinessLogicException(ExceptionCode.NOT_WRITER);
+    }
+
     public boolean existsEmail(String email) {
         return memberRepository.findByEmail(email).isPresent();
     }

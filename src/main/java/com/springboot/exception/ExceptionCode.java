@@ -17,6 +17,7 @@ public enum ExceptionCode {
     LIKED_QNA(403, "Liked Question"),
     LIKED_NOT_FOUND(403, "Liked Not Found"),
     QNA_DELETED(403, "Answed Deleted"),
+    NOT_WRITER(403, "Not Writer"),
     ;
 
 

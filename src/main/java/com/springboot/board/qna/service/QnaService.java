@@ -8,6 +8,7 @@ import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,8 +38,10 @@ public class QnaService {
     }
 
     //수정
-    public Qna aditQna(Qna qna){
+    public Qna aditQna(Qna qna, String email){
         Qna findQna = findQna(qna.getQnaId());
+
+        memberService.checkSameMember(email, findQna.getMember().getMemberId());
 
         //답이 있을 경우 예외
         if (findQna.getReply() != null)
@@ -78,18 +81,30 @@ public class QnaService {
     }
 
     //여러개 조회
-    public List<Qna> findQnas(int page, int size, String sortType){
+    public Page<Qna> findQnas(int page, int size, String sortType){
         Pageable pageable;
 
         pageable = PageRequest.of(page, size, Qna.SortType(sortType));
 
-        List<Qna> qnas = qnaRepository.findAllByQnaStatusNot(pageable, Qna.QnaStatus.QUESTION_DELETED).getContent();
+        Page<Qna> qnas = qnaRepository.findAllByQnaStatusNot(pageable, Qna.QnaStatus.QUESTION_DELETED);
+        return qnas;
+    }
+
+    public Page<Qna> findQnas(int page, int size, String sortType, String keyword){
+        Pageable pageable;
+
+        pageable = PageRequest.of(page, size, Qna.SortType(sortType));
+
+        Page<Qna> qnas = qnaRepository.findByTitleContainingAndQnaStatusNot(pageable, keyword, Qna.QnaStatus.QUESTION_DELETED);
         return qnas;
     }
 
     //삭제
-    public void deleteQna(Long qnaId){
+    public void deleteQna(Long qnaId, String email){
         Qna deleteQna = verifyQna(qnaId);
+
+        memberService.checkSameMember(email, deleteQna.getMember().getMemberId());
+
         if(deleteQna.getQnaStatus() == Qna.QnaStatus.QUESTION_DELETED)
             throw new BusinessLogicException(ExceptionCode.QNA_DELETED);
         deleteQna.setQnaStatus(Qna.QnaStatus.QUESTION_DELETED);

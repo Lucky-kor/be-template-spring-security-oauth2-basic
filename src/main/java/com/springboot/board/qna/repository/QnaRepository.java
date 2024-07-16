@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface QnaRepository extends JpaRepository<Qna, Long> {
     Page<Qna> findAllByQnaStatusNot(Pageable pageable, Qna.QnaStatus qnaStatus);
+    Page<Qna> findByTitleContainingAndQnaStatusNot(Pageable pageable, String keyword, Qna.QnaStatus qnaStatus );
 }

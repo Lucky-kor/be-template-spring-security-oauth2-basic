@@ -4,8 +4,8 @@ import com.springboot.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.springframework.data.domain.Sort;
 
 import javax.persistence.*;

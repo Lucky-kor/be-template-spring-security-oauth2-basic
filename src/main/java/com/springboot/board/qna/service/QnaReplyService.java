@@ -47,8 +47,8 @@ public class QnaReplyService {
     }
 
     //삭제
-    public void deleteQnaReply(Long qnaReplyId){
-        Reply deleteReply = verifyQnaReply(qnaReplyId);
+    public void deleteQnaReply(Reply reply){
+        Reply deleteReply = verifyQnaReply(reply.getId());
         qnaService.deleteQnaReply(deleteReply.getQna().getQnaId());
         repository.delete(deleteReply);
     }
