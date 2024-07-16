@@ -4,7 +4,6 @@ import com.springboot.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.springframework.data.domain.Sort;
 
@@ -17,6 +16,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @NoArgsConstructor
+@Indexed
 public class Qna {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,7 @@ public class Qna {
     private Member member;
 
     @Column(nullable = false, length = 50)
+    //@FullTextField
     private String title;
 
     @Column(nullable = false)

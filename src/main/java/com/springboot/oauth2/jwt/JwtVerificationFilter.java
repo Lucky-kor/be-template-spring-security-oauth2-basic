@@ -34,11 +34,15 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             Map<String, Object> claims = verifyJws(request);
             setAuthenticationToContext(claims);
         }
+        catch (IllegalArgumentException ie){
+            request.setAttribute("유효하지 않은 토큰", ie);
+        }
         catch (SignatureException se){
-            request.setAttribute("exception", se);
+            request.setAttribute("사용자 인증 실패", se);
         }
         catch (ExpiredJwtException ee){
-            request.setAttribute("exception", ee);
+            request.setAttribute("토큰 기한 만료", ee);
+            //재발급
         }
         catch (Exception e){
             request.setAttribute("exception", e);
