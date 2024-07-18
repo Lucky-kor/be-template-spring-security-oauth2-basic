@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v11/board/qna")
+@CrossOrigin(origins = "http://localhost:8080")
 public class QnaController {
     private final QnaService qnaService;
     private  final QnaMapper mapper;

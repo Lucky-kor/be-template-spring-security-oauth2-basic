@@ -1,22 +1,23 @@
 package com.springboot.oauth2.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 @Component
+@Slf4j
 public class JwtTokenizer {
     @Getter
     @Value("${jwt.key.secret}")
@@ -79,6 +80,35 @@ public class JwtTokenizer {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(jws);
+    }
+
+    // 토큰의 유효성 + 만료일자 확인
+    public boolean validateToken(String jwtToken) {
+        try {
+            Jws<Claims> claims = Jwts.parser().setSigningKey(encodeBase64SecretKey(getSecretKey())).parseClaimsJws(jwtToken);
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            log.info(e.getMessage());
+            return false;
+        }
+    }
+
+    public String reissueAccessToken(String refreshToken, JWTAuthorityUtils jwtAuthorityUtils){
+        System.out.println(refreshToken);
+        Map<String, Object> claims =
+                getClaims(refreshToken, encodeBase64SecretKey(getSecretKey())).getBody();
+        String subject = (String) claims.get("sub");
+
+        List<String> roles = jwtAuthorityUtils.createRoles(subject);
+
+        Date expiration = getTokenExpiration(getAccessTokenExpirationMinutes());
+        String base64EncodedSecretKey = encodeBase64SecretKey(getSecretKey());
+
+        claims = new HashMap<>();
+        claims.put("username", subject);
+        claims.put("roles", roles);
+        generateRefreshToken(subject, expiration, base64EncodedSecretKey);
+        return generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
     }
 
     public Date getTokenExpiration(int expirationMinutes) {

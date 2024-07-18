@@ -52,7 +52,7 @@ public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String accessToken = delegateAccessToken(username, authorities);
         String refreshToken = delegateRefreshToken(username);
 
-        response.addCookie(new Cookie("refreshToken", refreshToken));
+        response.addCookie(authorityUtils.createCookie(username, refreshToken));
 
         String uri = createURI(accessToken, refreshToken).toString();
         getRedirectStrategy().sendRedirect(request, response, uri);
@@ -65,12 +65,21 @@ public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         return UriComponentsBuilder
                 .newInstance()
                 .scheme("http")
-                .host("localhost")
-                .port(80)
-                .path("/receive-token.html")
+                .host("127.0.0.1")
+                .port(8080)
+                .path("/main.html")
                 .queryParams(quertParams)
                 .build()
                 .toUri();
+//        return UriComponentsBuilder
+//                .newInstance()
+//                .scheme("http")
+//                .host("localhost")
+//                .port(80)
+//                .path("/receive-token.html")
+//                .queryParams(quertParams)
+//                .build()
+//                .toUri();
     }
 
     private String delegateRefreshToken(String username) {

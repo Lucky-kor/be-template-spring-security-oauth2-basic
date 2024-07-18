@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +32,26 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            Map<String, Object> claims = verifyJws(request);
-            setAuthenticationToContext(claims);
+            String accessToken = request.getHeader("Authorization").replace("Bearer ", "");
+            if(jwtTokenizer.validateToken(accessToken)){
+                Map<String, Object> claims =
+                        verifyJws(accessToken);
+                setAuthenticationToContext(claims);
+            }
+            else {
+                String refreshToken = jwtAuthorityUtils.getRefreshToken(request);
+                if(refreshToken != null && jwtTokenizer.validateToken(refreshToken)){
+                    String newAccessToken = jwtTokenizer.reissueAccessToken(refreshToken, jwtAuthorityUtils);
+
+                    Map<String, Object> newclaims =
+                            verifyJws(newAccessToken);
+                    response.setHeader("Authorization", "Bearer " + newAccessToken);
+                    setAuthenticationToContext(newclaims);
+                }
+                else {
+
+                }
+            }
         }
         catch (IllegalArgumentException ie){
             request.setAttribute("유효하지 않은 토큰", ie);
@@ -42,7 +61,6 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         }
         catch (ExpiredJwtException ee){
             request.setAttribute("토큰 기한 만료", ee);
-            //재발급
         }
         catch (Exception e){
             request.setAttribute("exception", e);
@@ -59,10 +77,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         return authorization == null || !authorization.startsWith("Bearer ");
     }
 
-    private Map<String, Object> verifyJws(HttpServletRequest request){
-        String jws = request.getHeader("Authorization").replace("Bearer ", "");
+    private Map<String, Object> verifyJws(String token){
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-        Map<String, Object> claims = jwtTokenizer.getClaims(jws, base64EncodedSecretKey).getBody();
+        Map<String, Object> claims = jwtTokenizer.getClaims(token, base64EncodedSecretKey).getBody();
         return claims;
     }
 

@@ -50,6 +50,7 @@ public class SecurityConfigration {
                 .and()
                 .csrf().disable()
                 //CorsConfigurationSource를 만들어줘야함
+                //.cors(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
