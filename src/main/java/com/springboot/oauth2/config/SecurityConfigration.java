@@ -5,7 +5,7 @@ import com.springboot.oauth2.jwt.JWTAuthorityUtils;
 import com.springboot.oauth2.jwt.JwtTokenizer;
 import com.springboot.oauth2.jwt.JwtVerificationFilter;
 import com.springboot.oauth2.jwt.Oauth2AuthenticationSuccessHandler;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,15 +26,29 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsUtils;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
-public class SecurityConfigration {
+public class SecurityConfigration implements WebMvcConfigurer {
     private final JwtTokenizer jwtTokenizer;
     private final MemberService memberService;
     private final JWTAuthorityUtils jwtAuthorityUtils;
     private final PasswordEncoder passwordEncoder;
+
+     @Override
+     public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("/*/")
+                .allowCredentials(true);
+    }
 
     public SecurityConfigration(JwtTokenizer jwtTokenizer, MemberService memberService, JWTAuthorityUtils jwtAuthorityUtils, PasswordEncoder passwordEncoder) {
         this.jwtTokenizer = jwtTokenizer;
@@ -50,7 +64,6 @@ public class SecurityConfigration {
                 .and()
                 .csrf().disable()
                 //CorsConfigurationSource를 만들어줘야함
-                //.cors(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -84,7 +97,8 @@ public class SecurityConfigration {
                         .successHandler(new Oauth2AuthenticationSuccessHandler(
                                 jwtTokenizer, jwtAuthorityUtils, memberService
                         )
-                        ));
+                        ))
+                ;
         return http.build();
     }
 
@@ -97,17 +111,36 @@ public class SecurityConfigration {
         }
     }
 
+    // Customizer.withDefaults()면 자동으로 사용
     @Bean
-    CorsConfigurationSource corsConfigurationSource(){
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
-
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
+
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Arrays.asList("*"));
+//        configuration.setAllowedMethods(Arrays.asList("GET","POST", "PATCH", "DELETE"));
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration); // 주의 사항: 컨텐츠 표시 오류로 인해 '/**'를 '\\/**'로 표기했으니 실제 코드 구현 시에는 '\\(역슬래시)'를 빼 주세요.
+//
+//        return source;
+//    }
+
+    @Autowired
+    private EntityManager entityManager;
+
+//
+//    @Bean
+//    public SearchSession session(){
+//        return Search.session((Session) entityManagerFactory);
+//    }
 }

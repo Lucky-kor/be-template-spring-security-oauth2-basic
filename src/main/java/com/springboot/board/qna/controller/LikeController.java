@@ -5,8 +5,10 @@ import com.springboot.board.qna.entity.Like;
 import com.springboot.board.qna.mapper.LikeMapper;
 import com.springboot.board.qna.mapper.QnaMapper;
 import com.springboot.board.qna.service.QnaService;
+import com.springboot.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
@@ -17,19 +19,22 @@ public class LikeController {
 
     private final LikeMapper mapper;
     private final QnaService qnaService;
+    private final MemberService memberService;
 
     private final QnaMapper qnaMapper;
 
-    public LikeController(LikeMapper mapper, QnaService qnaService, QnaMapper qnaMapper) {
+    public LikeController(LikeMapper mapper, QnaService qnaService, MemberService memberService, QnaMapper qnaMapper) {
         this.mapper = mapper;
         this.qnaService = qnaService;
+        this.memberService = memberService;
         this.qnaMapper = qnaMapper;
     }
 
     //좋아요
     @PostMapping("/like/{qna-id}")
     public ResponseEntity likeQna(@Positive @PathVariable("qna-id") long qnaId,
-                                  @Positive @RequestParam long memberId){
+                                  @AuthenticationPrincipal Object email){
+        long memberId = memberService.getMemberId(email);
         Like like = mapper.liketoids(qnaId, memberId);
         return new ResponseEntity(qnaMapper.qnaResponseToqna(qnaService.likedQna(like)), HttpStatus.OK);
     }

@@ -33,31 +33,32 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String accessToken = request.getHeader("Authorization").replace("Bearer ", "");
-            if(jwtTokenizer.validateToken(accessToken)){
+            if(jwtTokenizer.verifySignature(accessToken, jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey()))){
                 Map<String, Object> claims =
                         verifyJws(accessToken);
                 setAuthenticationToContext(claims);
             }
             else {
-                String refreshToken = jwtAuthorityUtils.getRefreshToken(request);
-                if(refreshToken != null && jwtTokenizer.validateToken(refreshToken)){
-                    String newAccessToken = jwtTokenizer.reissueAccessToken(refreshToken, jwtAuthorityUtils);
 
-                    Map<String, Object> newclaims =
-                            verifyJws(newAccessToken);
-                    response.setHeader("Authorization", "Bearer " + newAccessToken);
-                    setAuthenticationToContext(newclaims);
-                }
-                else {
-
-                }
             }
         }
         catch (IllegalArgumentException ie){
             request.setAttribute("유효하지 않은 토큰", ie);
         }
         catch (SignatureException se){
-            request.setAttribute("사용자 인증 실패", se);
+            String refreshToken = jwtAuthorityUtils.getRefreshToken(request);
+            if(refreshToken != null && jwtTokenizer.verifySignature(refreshToken,
+                    jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey()))){
+                String newAccessToken = jwtTokenizer.reissueAccessToken(refreshToken, jwtAuthorityUtils);
+
+                Map<String, Object> newclaims =
+                        verifyJws(newAccessToken);
+                response.setHeader("Authorization", "Bearer " + newAccessToken);
+                setAuthenticationToContext(newclaims);
+            }
+            else {
+                request.setAttribute("사용자 인증 실패", se);
+            }
         }
         catch (ExpiredJwtException ee){
             request.setAttribute("토큰 기한 만료", ee);

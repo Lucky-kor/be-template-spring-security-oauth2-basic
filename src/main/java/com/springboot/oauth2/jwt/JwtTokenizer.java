@@ -73,25 +73,34 @@ public class JwtTokenizer {
     }
 
     // 단순히 검증만 하는 용도로 쓰일 경우
-    public void verifySignature(String jws, String base64EncodedSecretKey) {
+    public boolean verifySignature(String jws, String base64EncodedSecretKey) {
         Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
 
         Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(jws);
+
+        return true;
     }
 
     // 토큰의 유효성 + 만료일자 확인
+    /*
     public boolean validateToken(String jwtToken) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(encodeBase64SecretKey(getSecretKey())).parseClaimsJws(jwtToken);
+            Key key = getKeyFromBase64EncodedKey(encodeBase64SecretKey(getSecretKey()));
+
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
             log.info(e.getMessage());
             return false;
         }
     }
+    */
 
     public String reissueAccessToken(String refreshToken, JWTAuthorityUtils jwtAuthorityUtils){
         System.out.println(refreshToken);

@@ -32,7 +32,7 @@ public class Member extends Auditable {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(length = 13, nullable = false, unique = true)
+    @Column(length = 13, nullable = false)
     private String phone;
 
     @Enumerated(value = EnumType.STRING)

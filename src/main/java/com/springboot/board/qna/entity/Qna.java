@@ -4,6 +4,7 @@ import com.springboot.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 import org.springframework.data.domain.Sort;
 
@@ -27,7 +28,7 @@ public class Qna {
     private Member member;
 
     @Column(nullable = false, length = 50)
-    //@FullTextField
+    @FullTextField
     private String title;
 
     @Column(nullable = false)

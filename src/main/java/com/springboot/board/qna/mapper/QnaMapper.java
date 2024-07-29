@@ -32,8 +32,18 @@ public interface QnaMapper {
 
         QnaDto.Response response;
 
+        int isLike = 0;
+
+        if(qna.getLikes() != null){
+            isLike = qna.getLikes().stream()
+                    .filter(x-> x.getMember().getMemberId() == qna.getMember().getMemberId())
+                    .count() == 0 ? 0 : 1;
+        };
+
+
         if(qna.getReply() != null){
             response = QnaDto.Response.builder()
+                    .qnaId(qna.getQnaId())
                     .body(qna.getBody())
                     .title(qna.getTitle())
                     .lock(qna.getLock())
@@ -44,10 +54,12 @@ public interface QnaMapper {
                     .like(qna.getLikeCount())
                     .qnaStatus(qna.getQnaStatus())
                     .view(qna.getView())
+                    .isLike(isLike)
                     .build();
         }
         else {
             response = QnaDto.Response.builder()
+                    .qnaId(qna.getQnaId())
                     .body(qna.getBody())
                     .title(qna.getTitle())
                     .lock(qna.getLock())
@@ -56,6 +68,7 @@ public interface QnaMapper {
                     .like(qna.getLikeCount())
                     .view(qna.getView())
                     .qnaStatus(qna.getQnaStatus())
+                    .isLike(isLike)
                     .build();
         }
 

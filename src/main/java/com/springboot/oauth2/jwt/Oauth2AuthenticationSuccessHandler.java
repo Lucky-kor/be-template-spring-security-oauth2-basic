@@ -66,8 +66,7 @@ public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .newInstance()
                 .scheme("http")
                 .host("127.0.0.1")
-                .port(8080)
-                .path("/main.html")
+                .port(3000)
                 .queryParams(quertParams)
                 .build()
                 .toUri();

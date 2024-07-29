@@ -72,4 +72,8 @@ public class JWTAuthorityUtils {
         cookie.setMaxAge(60 * 60 * 24); //쿠키 만료시간 설정
         return cookie;
     }
+
+    public boolean isAdmin(List<String> roles){
+        return roles.contains(ADMIN_ROLES_STRING);
+    }
 }

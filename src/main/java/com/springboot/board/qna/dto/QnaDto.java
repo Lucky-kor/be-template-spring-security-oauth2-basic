@@ -41,6 +41,7 @@ public class QnaDto {
     @AllArgsConstructor
     @Builder
     public static class Response{
+        private Long qnaId;
         private String title;
         private String body;
         private String reply;
@@ -51,5 +52,7 @@ public class QnaDto {
         private int lock;
         private int like;
         private int view;
+        // 내가 좋아요를 누른 게시글인지
+        private int isLike;
     }
 }

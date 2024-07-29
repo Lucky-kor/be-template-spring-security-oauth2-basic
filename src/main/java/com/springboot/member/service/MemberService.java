@@ -112,6 +112,17 @@ public class MemberService {
             throw  new BusinessLogicException(ExceptionCode.NOT_WRITER);
     }
 
+    public Long getMemberId(Object email){
+        return findVerifiedMember(email.toString()).getMemberId();
+    }
+
+    public boolean checkAdmin(String email){
+        if (email != null && jwtAuthorityUtils.isAdmin(findVerifiedMember(email).getRoles()))
+            return true;
+        else
+            throw  new BusinessLogicException(ExceptionCode.NOT_ADMIN);
+    }
+
     public boolean existsEmail(String email) {
         return memberRepository.findByEmail(email).isPresent();
     }

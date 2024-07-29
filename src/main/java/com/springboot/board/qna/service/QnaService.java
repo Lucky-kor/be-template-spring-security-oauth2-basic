@@ -6,8 +6,10 @@ import com.springboot.board.qna.entity.Reply;
 import com.springboot.board.qna.repository.QnaRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
+import com.springboot.helper.event.QnaReplyApplicationEvent;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +26,13 @@ public class QnaService {
     private final MemberService memberService;
     private final LikeService likeService;
 
-    public QnaService(QnaRepository qnaRepository, MemberService memberService, LikeService likeService) {
+    private final ApplicationEventPublisher publisher;
+
+    public QnaService(QnaRepository qnaRepository, MemberService memberService, LikeService likeService, ApplicationEventPublisher publisher) {
         this.qnaRepository = qnaRepository;
         this.memberService = memberService;
         this.likeService = likeService;
+        this.publisher = publisher;
     }
 
     //등록
@@ -61,6 +66,9 @@ public class QnaService {
         findQna.setReply(reply);
         findQna.setQnaStatus(Qna.QnaStatus.QUESTION_ANSWERED);
         qnaRepository.save(findQna);
+
+        publisher.publishEvent(new QnaReplyApplicationEvent(this, findQna));
+
         return findQna;
     }
 
