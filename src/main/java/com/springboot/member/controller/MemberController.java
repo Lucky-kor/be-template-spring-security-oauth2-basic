@@ -6,6 +6,7 @@ import com.springboot.member.dto.MemberDto;
 import com.springboot.member.entity.Member;
 import com.springboot.member.mapper.MemberMapper;
 import com.springboot.member.service.MemberService;
+import com.springboot.oauth2.dto.LoginDto;
 import com.springboot.stamp.Stamp;
 import com.springboot.utils.UriCreator;
 import lombok.extern.slf4j.Slf4j;
